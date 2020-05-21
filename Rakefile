@@ -24,7 +24,7 @@ desc 'dist'
 task :dist do
   sh 'mill donew_cli.assembly'
   sh 'cd out;
-      $GRAALVM_HOME/bin/native-image -cp donew_cli/assembly/dest/out.jar -H:Name=donew -H:+ReportUnsupportedElementsAtRuntime donew_cli.Main'
+$GRAALVM_HOME/bin/native-image --no-server -cp donew_cli/assembly/dest/out.jar -H:Name=donew -H:+ReportUnsupportedElementsAtRuntime -H:+RemoveSaturatedTypeFlows donew_cli.Main'
   # sh 'cd out;upx donew_cli'
 end
 
