@@ -1,15 +1,17 @@
 package donew_cli
 
 import java.io.File
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 object Main {
-  private val DefaultDenoProjectName = "deno_test1"
-  private val DefaultGoProjectName = "go_test1"
+  private val DefaultDenoProjectName = "deno_test_"
+  private val DefaultGoProjectName = "go_test_"
 
   def main(args: Array[String]): Unit = args match {
-    case Array("deno")       => _donewDeno(DefaultDenoProjectName)
+    case Array("deno")       => _donewDeno(DefaultDenoProjectName + dateStr())
     case Array("deno", name) => _donewDeno(name)
-    case Array("go")         => _donewGo(DefaultGoProjectName)
+    case Array("go")         => _donewGo(DefaultGoProjectName + dateStr())
     case Array("go", name)   => _donewGo(name)
     case _                   => println("any?")
   }
@@ -30,6 +32,9 @@ object Main {
   private def _donewGo(name: String, args: String*): Unit = {
     new GoProjectMaker(name, args).gen()
   }
+
+  private def dateStr() =
+    DateTimeFormatter.ofPattern("yyyyMMddHHmm").format(LocalDateTime.now())
 }
 
 //TODO:
