@@ -1,6 +1,7 @@
 package donew_cli
 
 import java.io.File
+import java.nio.file.Files
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -13,6 +14,7 @@ object Main {
     case Array("deno", name) => _donewDeno(name)
     case Array("go")         => _donewGo(DefaultGoProjectName + dateStr())
     case Array("go", name)   => _donewGo(name)
+    case Array("invoke")     => _donewInvoke()
     case _                   => println("any?")
   }
 
@@ -26,11 +28,50 @@ object Main {
     val r = sys.process.Process(Seq("denoinit"), root).!!
     println(r)
 
+    val rakeFileContent = s"""task default: :usage
+
+    task :usage do
+      sh "rake -T"
+    end
+
+    desc "build"
+    task :build do
+      sh "mkdir dist && deno compile --unstable main.ts -o dist/${name}"
+    end
+   """
+    Files.write(
+      new File(root, "Rakefile").toPath,
+      rakeFileContent.getBytes("UTF-8")
+    )
+
     println(s"cd ${name} for your work!")
   }
 
   private def _donewGo(name: String, args: String*): Unit = {
     new GoProjectMaker(name, args).gen()
+  }
+
+  def _donewInvoke(): Unit = {
+    val d="\"\"\""
+    val s =
+      s"""|from invoke import task
+         |
+         |
+         |@task
+         |def version(c, cmd=None):
+         |    "println version"
+         |    cmd = 'invoke' if cmd == None else cmd
+         |    v = "-version" if cmd == 'java' else '--version'
+         |    c.run('{} {}'.format(cmd, v))
+         |
+         |
+         |@task(default=True)
+         |def usage(c):
+         |    ${d}Usage${d}
+         |    c.run('invoke -l')
+         |
+         |""".stripMargin
+    Files.write(new File("tasks.py").toPath, s.getBytes("UTF-8"))
   }
 
   private def dateStr() =
