@@ -17,14 +17,14 @@ object NewDeno {
 
     val rakeFileContent = s"""task default: :usage
 
-    task :usage do
-      sh "rake -T"
-    end
+task :usage do
+  sh "rake -T"
+end
 
-    desc "build"
-    task :build do
-      sh "mkdir dist && deno compile --unstable main.ts -o dist/${name}"
-    end
+desc "build"
+task :build do
+  sh "mkdir -p dist && deno compile --unstable --prompt -o dist/${name} main.ts "
+end
    """
     Files.write(
       new File(root, "Rakefile").toPath,
